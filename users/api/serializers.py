@@ -74,8 +74,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
         
         instance = self.instance
 
-        if Profile.objects.filter(email=value).exists():
-            if instance is None or instance.email != value:
+        if instance:
+             
+             if Profile.objects.filter(email=value).exclude(pk=instance.pk).exists():
+                 raise serializers.ValidationError('Email already exists.')
+        
+        else:
+
+            if Profile.objects.filter(email=value).exists():
                 raise serializers.ValidationError('Email already exists.')
         
         return value

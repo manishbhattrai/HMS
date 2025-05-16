@@ -19,8 +19,13 @@ class RoomSerializer(serializers.ModelSerializer):
 
         instance = self.instance
 
-        if Room.objects.filter(room_number=value).exists():
-            if instance is None and instance.room_number != value:
+        if instance:
+
+            if Room.objects.filter(room_number = value).exclude(pk = instance.pk).exists():
+                raise serializers.ValidationError('Room number must be unique.')
+
+        else:
+            if Room.objects.filter(room_number=value).exists():
                 raise serializers.ValidationError('Room number must be unique.')
         
         return value
