@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'users',
     'rooms',
     'django_filters',
+    'booking',
 
 ]
 

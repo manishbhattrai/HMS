@@ -10,7 +10,7 @@ class Room(models.Model):
     ROOM_TYPE_CHOICES = [
 
         ('single','Single'),
-        ('double','Double')
+        ('double','Double'),
     ]
 
     STATUS_CHOICES = [
@@ -36,7 +36,7 @@ class Room(models.Model):
 
 
     def __str__(self):
-        return f"Room {self.room_number} - {self.get_room_type_display()}"
+        return f"Room {self.room_number} - {self.room_type}"
     
     def is_available(self):
         return self.status == 'available'
