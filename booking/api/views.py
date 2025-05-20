@@ -37,7 +37,7 @@ class BookingViewset(viewsets.ModelViewSet):
         if self.action in ['list','create','retrieve','cancel']:
 
             if self.action == 'cancel':
-                return [IsOwner() | IsAdminUser()]
+                return [IsOwner() or IsAdminUser()]
 
             return [IsAuthenticated()]
         
@@ -104,7 +104,7 @@ class BookingViewset(viewsets.ModelViewSet):
             try:
                 room = Room.objects.get(id=room_id)
 
-                if Booking.objects.filter(room=room).exists():
+                if Booking.objects.filter(user=user,room=room).exists():
                     
                     raise ValidationError('Booking can be done once.')
 
@@ -161,14 +161,23 @@ class BookingViewset(viewsets.ModelViewSet):
     
 
     
-    @action(detail=True, methods=['post'], permission_classes = [IsOwner | IsAdminUser])
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated or IsAdminUser])
     def cancel(self, request, pk=None):
 
         booking = self.get_object()
 
+        if not request.user.is_staff and booking.user != request.user:
+            raise PermissionDenied("You don't have permission to cancel this booking.")
+
         if booking.status == 'confirmed':
 
             return Response({'message':'confirmed booking cannot be cancelled.'},status=status.HTTP_400_BAD_REQUEST)
+        
+        print(f"before: Booking {booking.id} status = {booking.status}")
+
+        if booking.status == 'cancelled':
+
+            return Response({'message':'booking already cancelled.'},status=status.HTTP_400_BAD_REQUEST)
         
         booking.status = 'cancelled'
         booking.save()

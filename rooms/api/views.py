@@ -27,7 +27,7 @@ class RoomViewsets(viewsets.ModelViewSet):
         
         if self.action in ['list','retrieve']:
 
-            return [IsAuthenticated() | IsAdminUser()]
+            return [IsAuthenticated() ]
         
         elif self.action in ['create','update','partial_update','destroy']:
             
