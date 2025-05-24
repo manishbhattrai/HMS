@@ -85,3 +85,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('Email already exists.')
         
         return value
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+
+    current_password = serializers.CharField(required = True)
+    new_password = serializers.CharField(required = True)
+    confirm_password = serializers.CharField(required = True)
+
+    def validate(self, data):
+
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+
+        if new_password != confirm_password:
+            raise serializers.ValidationError("Password didn't match.")
+        
+        return data

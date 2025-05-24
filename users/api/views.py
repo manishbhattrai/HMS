@@ -4,7 +4,7 @@ from rest_framework.views import  APIView
 from rest_framework.generics import CreateAPIView
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny,IsAuthenticated, IsAdminUser
-from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserProfileSerializer
+from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserProfileSerializer, ChangePasswordSerializer
 from users.models import Profile
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
@@ -147,6 +147,35 @@ class UserProfileView(viewsets.ModelViewSet):
         
         
         instance.delete()
+
+
+class ChangePasswordView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        data = request.data
+        serializer = ChangePasswordSerializer(data = data)
+
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        user = request.user
+        current_password = serializer.validated_data['current_password']
+        new_password = serializer.validated_data['new_password']
+
+        if not user.check_password(current_password):
+            return Response({'message':"Invalid Password."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'message':'password changed successfully.'},status=status.HTTP_200_OK)
+        
+        
+    
 
 
 
