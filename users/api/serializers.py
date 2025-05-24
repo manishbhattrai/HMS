@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from users.models import Profile
 from django.contrib.auth.models import User
+
+
 ##from django.contrib.auth import authenticate
 
 
@@ -101,4 +103,37 @@ class ChangePasswordSerializer(serializers.Serializer):
         if new_password != confirm_password:
             raise serializers.ValidationError("Password didn't match.")
         
+        if len(new_password) < 8:
+            raise serializers.ValidationError('Password should be more than 8 characters.')
+        
         return data
+
+class ForgotPasswordSerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        
+
+
+        try:
+            profile = Profile.objects.get(email=value)
+        
+        except Profile.DoesNotExist:
+            raise serializers.ValidationError('Email doesnot exists.')
+        
+        return value
+    
+
+class ResetPasswordSerializer(serializers.Serializer):
+
+    new_password = serializers.CharField(write_only = True)
+
+
+    def validate_new_password(self,value):
+
+        if len(value) < 8:
+            raise serializers.ValidationError('Password should be more than 8 characters.')
+        
+        return value
+    
